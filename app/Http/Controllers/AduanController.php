@@ -20,7 +20,10 @@ class AduanController extends Controller
     public function buatAduan()
     {
 
-        return view('aduan.buat-aduan');
+        $kodeLaporan = Laporan::generateKodeLaporan();
+
+
+        return view('aduan.buat-aduan', compact('kodeLaporan'));
     }
 
     public  function simpanDataAduan(Request $request)

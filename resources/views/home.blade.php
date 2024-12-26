@@ -49,7 +49,7 @@
         .btn-secondary:focus {
             color: #333;
             text-shadow: none;
-            /* Prevent inheritance from `body` */
+
             background-color: #fff;
             border: .05rem solid #fff;
         }
@@ -156,12 +156,12 @@
                 <nav class="nav nav-masthead justify-content-center">
 
                     @auth <h5 class="masthead-brand btn btn-primary btn-secondary  "><a href="{{ route('dashboard') }}"
-                                class="text-dark">Beranda</a>
-                        </h5>
+                            class="text-dark">Beranda</a>
+                    </h5>
                     @else
-                        <h5 class="masthead-brand btn btn-primary btn-secondary  "><a href="/login"
-                                class="text-dark">Masuk</a>
-                        </h5>
+                    <h5 class="masthead-brand btn btn-primary btn-secondary  "><a href="/login"
+                            class="text-dark">Masuk</a>
+                    </h5>
                     @endauth
 
 
@@ -175,13 +175,14 @@
             <p class="lead"> Sistem ini dirancang untuk meningkatkan transparansi dan akuntabilitas universitas Mercu
                 Buana.
             <p class="lead">
-            <form action="{{ route('cek.aduan.post') }}" method="POST">
-                @csrf
+            <form id="searchForm">
+
                 <div class="form-row">
 
                     <div class="col-9">
-                        <input type="text" class="form-control" placeholder="Masukan nomor Laporan"
-                            name="kode_laporan">
+                        <input type="text" class="form-control" id="kode_laporan" name="kode_laporan"
+                            placeholder="PM-xxxx-xxx" maxlength="15">
+
                     </div>
                     <div class="col-3">
                         <button type="submit" class="btn btn-md btn-secondary">Lacak Aduan</button>
@@ -190,7 +191,11 @@
                 </div>
 
 
-                <p class="text-center mt-3">Pantau status terakhir aduan Anda dengan memasukkan nomor aduan.
+
+                <p class="text-center mt-3">
+
+                <div id="result"> Pantau status terakhir aduan Anda dengan memasukkan nomor aduan.
+                </div>
 
                 </p>
 
@@ -207,6 +212,90 @@
             </div>
         </footer>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+        const prefix = "PM-";
+
+        $('#kode_laporan').on('focus', function () {
+            if (!$(this).val().startsWith(prefix)) {
+                $(this).val(prefix);
+            }
+        });
+
+        $('#kode_laporan').on('input', function () {
+            const value = $(this).val().replace(prefix, "");
+            const cleanValue = value.replace(/[^0-9]/g, "");
+
+            const part1 = cleanValue.substring(0, 4); // 4 digit pertama
+            const part2 = cleanValue.substring(4, 7); // 3 digit berikutnya
+
+            let formattedValue = `${prefix}${part1}`;
+            if (part2) {
+                formattedValue += `-${part2}`;
+            }
+
+            $(this).val(formattedValue);
+        });
+
+        // Submit form untuk pencarian
+        $('#searchForm').on('submit', function (e) {
+            e.preventDefault();
+
+            const kodeLaporan = $('#kode_laporan').val();
+
+            const regex = /^PM-\d{4}-\d{3}$/;
+            if (!regex.test(kodeLaporan)) {
+                $('#result').html('<p>Format kode laporan tidak valid. Gunakan format: PM-xxxx-xxxx</p>');
+                return;
+            }
+
+            $.ajax({
+                url: '/cek-aduan',
+                type: 'GET',
+                data: { kode_laporan: kodeLaporan },
+                success: function (response) {
+                    if (response.data) {
+                        const laporan = response.data;
+
+                const statusBadge = laporan.status_laporan
+                    ? '<span class="badge badge-success">Selesai</span>'
+                    : '<span class="badge badge-warning">Menunggu</span>';
+
+                const tableHtml = `
+                    <table class="table table-dark mt-4">
+                        <thead>
+                            <tr>
+                                <th>Judul Laporan</th>
+                                <th>Status</th>
+                                <th>Opsi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="table-active">
+                                <td>${laporan.judul_laporan}</td>
+                                <td>${statusBadge}</td>
+                                <td>
+                                    <a class="btn btn-sm btn-primary" href="/aduan/detail/${laporan.id}">Detail</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>`;
+
+                $('#result').html(tableHtml);
+                    } else {
+                        $('#result').html('<p class="text-warning">Laporan tidak ditemukan.</p>');
+
+                    }
+                },
+                error: function () {
+                    $('#result').html('<p class="text-warning">Laporan tidak ditemukan.</p>');
+                }
+            });
+        });
+    });
+    </script>
 
 
 

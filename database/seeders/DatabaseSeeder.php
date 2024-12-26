@@ -32,19 +32,19 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin',
         ]);
 
-        Laporan::create(
+        // Laporan::create(
 
-            [
-                'kode_laporan' => str()->random(8),
-                'judul_laporan' => fake()->title(),
-                'isi_laporan' => fake()->sentence(),
+        //     [
+        //         'kode_laporan' => str()->random(8),
+        //         'judul_laporan' => fake()->title(),
+        //         'isi_laporan' => fake()->sentence(),
 
-                'jenis_laporan' => 'pengaduan',
-                'status_laporan' => false,
-                // 'tanggapan_laporan' => fake()->sentence(),
+        //         'jenis_laporan' => 'pengaduan',
+        //         'status_laporan' => false,
+        //         // 'tanggapan_laporan' => fake()->sentence(),
 
-                'user_id' => 1
-            ]
-        );
+        //         'user_id' => 1
+        //     ]
+        // );
     }
 }

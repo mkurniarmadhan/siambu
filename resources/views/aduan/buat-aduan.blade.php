@@ -22,7 +22,7 @@
                     <div class="form-group">
                         <label for="kode_laporan">Kode Laporan</label>
                         <input type="text" readonly class="form-control" id="kode_laporan" name="kode_laporan"
-                            value="{{ str()->random(8) }}">
+                            value="{{ $kodeLaporan }}">
                     </div>
                     <div class="form-group">
                         <label for="judul_laporan">Judul Laporan</label>
